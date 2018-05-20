@@ -86,7 +86,7 @@ public class SocketServer {
 
     public void killServer() throws IOException {
         alive = false;
-        // Simulate a new client socket connection to exit the blocking code of line 42
+        // Simulate a new client socket connection to exit the blocking code of line 61
         // and break out of the infinite loop
         new Socket(serverSocket.getInetAddress(), serverSocket.getLocalPort()).close();
         serverSocket.close();
