@@ -4,6 +4,8 @@ An implementation of a multi-threaded Client/Server based tcp sockets CLI app fo
 
 Currently the data store is a hardcoded Map in the server, however this is just a proof of concept and it can be extended to fetching data from any database of choice.
 
+The current example is for a Book Store.
+
 ## Technology:
 
 * Java 8
