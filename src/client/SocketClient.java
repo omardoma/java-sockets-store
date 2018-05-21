@@ -47,50 +47,54 @@ public class SocketClient {
         return ((ServerReply) clientInput.readObject());
     }
 
-    public void connectToServer(String serverAddress, int serverPort) throws IOException {
+    public void connectToServer(String serverAddress, int serverPort) throws IOException, ClassNotFoundException {
         socket = new Socket(serverAddress, serverPort);
         clientInput = new ObjectInputStream(socket.getInputStream());
         clientOutput = new ObjectOutputStream(socket.getOutputStream());
+        initiate();
+    }
+
+    private void initiate() throws IOException, ClassNotFoundException {
+        Scanner sc = new Scanner(System.in);
+        String bookId, bookName;
+        ServerReply reply;
+        int chosenOption;
+        while (true) {
+            System.out.print("Book_ID: ");
+            bookId = sc.nextLine();
+            System.out.print("Book_Name: ");
+            bookName = sc.nextLine();
+            sendToServer(new Enquiry(bookId, bookName));
+            reply = getServerReply();
+            System.out.println(reply.getMessage());
+            if (reply.isError()) {
+                continue;
+            }
+            // Handle if the user entered an option String not an int
+            while (true) {
+                try {
+                    chosenOption = sc.nextInt();
+                    sendToServer(new ClientReply(chosenOption));
+                    reply = getServerReply();
+                    System.out.println(reply.getMessage());
+                    // Skip line because nextInt doesn't when you press enter
+                    sc.nextLine();
+                    break;
+                } catch (InputMismatchException e) {
+                    System.out.println(reply.getMessage());
+                    // Skip line because nextInt doesn't when you press enter
+                    sc.nextLine();
+                }
+            }
+        }
     }
 
     public static void main(String[] args) {
         SocketClient client = new SocketClient(new Random().nextInt());
         try {
             client.connectToServer("localhost", 6000);
-            Scanner sc = new Scanner(System.in);
-            String bookId, bookName;
-            ServerReply reply;
-            int chosenOption;
-            while (true) {
-                System.out.print("Book_ID: ");
-                bookId = sc.nextLine();
-                System.out.print("Book_Name: ");
-                bookName = sc.nextLine();
-                client.sendToServer(new Enquiry(bookId, bookName));
-                reply = client.getServerReply();
-                System.out.println(reply.getMessage());
-                if (reply.isError()) {
-                    continue;
-                }
-                // Handle if the user entered an option String not an int
-                while (true) {
-                    try {
-                        chosenOption = sc.nextInt();
-                        client.sendToServer(new ClientReply(chosenOption));
-                        reply = client.getServerReply();
-                        System.out.println(reply.getMessage());
-                        // Skip line because nextInt doesn't when you press enter
-                        sc.nextLine();
-                        break;
-                    } catch (InputMismatchException e) {
-                        System.out.println(reply.getMessage());
-                        // Skip line because nextInt doesn't when you press enter
-                        sc.nextLine();
-                    }
-                }
-            }
         } catch (Exception e) {
-            // Do nothing to end the program
+            e.printStackTrace();
         }
     }
 }

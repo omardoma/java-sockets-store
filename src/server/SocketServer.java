@@ -86,18 +86,19 @@ public class SocketServer {
 
     public void killServer() throws IOException {
         alive = false;
-        // Simulate a new client socket connection to exit the blocking code of line 61
+        // Simulate a new client socket connection to exit the blocking code of serverSocket.accept()
         // and break out of the infinite loop
         new Socket(serverSocket.getInetAddress(), serverSocket.getLocalPort()).close();
         serverSocket.close();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        SocketServer server = new SocketServer(20);
         try {
-            new SocketServer(20).listen(6000);
+            server.listen(6000);
         } catch (IOException e) {
             e.printStackTrace();
-            System.exit(1);
+            server.killServer();
         }
     }
 }
